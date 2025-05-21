@@ -165,11 +165,11 @@ def compute_dfc_stream(ts_data, window_size=7, lag=1, format_data='3D',save_path
 #%% Compute the DFC stream
 #Parameters speed
 
-PROCESSORS =30
+PROCESSORS =90
 
 lag=1
 tau=5
-window_size = 10
+window_size = 9
 window_parameter = (5,100,1)
 
 #Parameters allegiance analysis
@@ -207,7 +207,7 @@ contingency_matrix = np.empty((n_animals, dfc_stream.shape[1], regions, regions)
 # Compute the allegiance communities for each time window
 for i in range(dfc_stream.shape[1]):
     # Compute the allegiance communities for each time window
-    dfc_communities[i], sort_allegiance[i], contingency_matrix[i] = fun_allegiance_communities(dfc_stream[0,i], 
+    dfc_communities[0,i], sort_allegiance[0,i], contingency_matrix[0,i] = fun_allegiance_communities(dfc_stream[0,i], 
                                                                                                        n_runs = n_runs_allegiance, 
                                                                                                        gamma_pt = gamma_pt_allegiance, 
                                                                                                        save_path=paths['allegiance'],
