@@ -1,0 +1,30 @@
+name: funcog
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - matplotlib
+  - seaborn
+  - scipy
+  - scikit-learn
+  - statsmodels
+  - h5py
+  - jupyterlab
+  - ipykernel
+  - networkx
+  - pytables
+  - pip
+  - pip:
+      - git+https://github.com/SamyCN89/allegiance.git
+      - brainconn
+      - numba
+      - tqdm
+      - matplotlib
+      - plotly
+      - ydata-profiling
+      - wordcloud
+      - missingno
+
