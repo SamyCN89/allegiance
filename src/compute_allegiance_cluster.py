@@ -223,6 +223,12 @@ for i in range(dfc_stream.shape[1]):
 #                                                                                                        )
 
 
+#%%
+# Save the allegiance communities
+np.savez_compressed(paths['allegiance'] / f'allegiance_communities_lag={lag}_windowsize={window_size}_tau={tau}.npz', dfc_communities=dfc_communities, sort_allegiance=sort_allegiance, contingency_matrix=contingency_matrix)
+# Save the allegiance communities
+# np.savez_compressed(paths['allegiance'] / 'sort_allegiance.npz', sort_allegiance=sort_allegiance)
+# np.savez_compressed(paths['allegiance'] / 'contingency_matrix.npz', contingency_matrix=contingency_matrix)
 
 # %%
 
