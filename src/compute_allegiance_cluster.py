@@ -13,8 +13,8 @@ import numpy as np
 import time
 # from functions_analysis import *
 from pathlib import Path
-import sys
-sys.path.append('../../shared_code')
+# import sys
+# sys.path.append('../../shared_code')
 
 # from sphinx import ret
 from shared_code.fun_loaddata import *
@@ -45,17 +45,25 @@ from shared_code.fun_utils import (set_figure_params,
 # ========================== Figure parameters ================================
 save_fig = set_figure_params(False)
 
+#%%
+
 # =================== Paths and folders =======================================
 timeseries_folder = 'Timecourses_updated_03052024'
-external_disk = True
-if external_disk==True:
-    root = Path('/media/samy/Elements1/Proyectos/LauraHarsan/script_mc/')
-else:    
-    root = Path('/home/samy/Bureau/Proyect/LauraHarsan/Ines/')
+# external_disk = True
+# if external_disk==True:
+#     root = Path('/media/samy/Elements1/Proyectos/LauraHarsan/script_mc/')
+# else:    
+#     root = Path('/home/samy/Bureau/Proyect/LauraHarsan/Ines/')
 
-paths = get_paths(external_disk=True,
-                  external_path=root,
-                  timecourse_folder=timeseries_folder)
+# paths = get_paths(external_disk=True,
+#                   external_path=root,
+#                   timecourse_folder=timeseries_folder)
+
+timeseries_folder = 'Timecourses_updated_03052024'
+
+# Will prioritize PROJECT_DATA_ROOT if set
+paths = get_paths(timecourse_folder=timeseries_folder)
+
 
 # ========================== Load data =========================
 cog_data_filtered = load_cognitive_data(paths['sorted'] / 'cog_data_sorted_2m4m.csv')
@@ -157,7 +165,7 @@ def compute_dfc_stream(ts_data, window_size=7, lag=1, format_data='3D',save_path
 #%% Compute the DFC stream
 #Parameters speed
 
-PROCESSORS =20
+PROCESSORS =30
 
 lag=1
 tau=5
@@ -219,18 +227,18 @@ for i in range(dfc_stream.shape[1]):
 # %%
 
 # # Plot the contingency matrix
-plt.figure(figsize=(10, 5))
-plt.imshow(contingency_matrix, aspect='auto', interpolation='none', cmap='Greys')
-plt.colorbar()
-plt.title('Contingency matrix')
-plt.xlabel('Time')
-plt.ylabel('Regions')
-plt.xticks(np.arange(len(anat_labels)), anat_labels, rotation=90)
-# plt.yticks(np.arange(len(label_variables)), label_variables)
-plt.tight_layout()
-# if save_fig:
-#     plt.savefig(paths['figures'] / 'contingency_matrix.png', dpi=300, bbox_inches='tight')
-plt.show()
+# plt.figure(figsize=(10, 5))
+# plt.imshow(contingency_matrix, aspect='auto', interpolation='none', cmap='Greys')
+# plt.colorbar()
+# plt.title('Contingency matrix')
+# plt.xlabel('Time')
+# plt.ylabel('Regions')
+# plt.xticks(np.arange(len(anat_labels)), anat_labels, rotation=90)
+# # plt.yticks(np.arange(len(label_variables)), label_variables)
+# plt.tight_layout()
+# # if save_fig:
+# #     plt.savefig(paths['figures'] / 'contingency_matrix.png', dpi=300, bbox_inches='tight')
+# plt.show()
 
 # #%%
 # # Ines relevant sites
