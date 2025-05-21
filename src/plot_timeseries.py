@@ -229,7 +229,7 @@ fc_cluster_per_animal = np.array([
 region_triu_index = np.triu_indices(regions, k=1)
 fc_cluster_per_animal= fc_cluster_per_animal[:,:,region_triu_index[0], region_triu_index[1]]
 #%%
-thr=0.1
+thr_=0.1
 threshold_links = np.max(fc_cluster_per_animal, axis=1)*thr_
 binary_fc_cluster = (fc_cluster_per_animal>threshold_links[:,None,:]).astype(int)
 #Plot one link of fc_cluster_per_animal
