@@ -17,20 +17,22 @@ import sys
 sys.path.append('../../shared_code')
 
 # from sphinx import ret
+from shared_code.fun_loaddata import *
+from shared_code.fun_dfcspeed import *
+from shared_code.fun_metaconnectivity import *
+# from fun_loaddata import *
+# from fun_dfcspeed import *
 
-from fun_loaddata import *
-from fun_dfcspeed import *
+# from fun_metaconnectivity import (compute_metaconnectivity, 
+#                                   intramodule_indices_mask, 
+#                                   get_fc_mc_indices, 
+#                                   get_mc_region_identities, 
+#                                   fun_allegiance_communities,
+#                                   compute_trimers_identity,
+#                                     build_trimer_mask,
+#                                   )
 
-from fun_metaconnectivity import (compute_metaconnectivity, 
-                                  intramodule_indices_mask, 
-                                  get_fc_mc_indices, 
-                                  get_mc_region_identities, 
-                                  fun_allegiance_communities,
-                                  compute_trimers_identity,
-                                    build_trimer_mask,
-                                  )
-
-from fun_utils import (set_figure_params, 
+from shared_code.fun_utils import (set_figure_params, 
                        get_paths, 
                        load_cognitive_data,
                        load_timeseries_data,
@@ -204,32 +206,34 @@ for i in range(dfc_stream.shape[1]):
                                                                                                        ref_name='test_dfc', 
                                                                                                        n_jobs=PROCESSORS,
                                                                                                        )
-dfc_communities, sort_allegiance, contingency_matrix = fun_allegiance_communities(dfc_stream[0,0], 
-                                                                                                       n_runs = n_runs_allegiance, 
-                                                                                                       gamma_pt = gamma_pt_allegiance, 
-                                                                                                       save_path=paths['allegiance'],
-                                                                                                       ref_name='test_dfc', 
-                                                                                                       n_jobs=PROCESSORS,
-                                                                                                       )
+# dfc_communities, sort_allegiance, contingency_matrix = fun_allegiance_communities(dfc_stream[0,0], 
+#                                                                                                        n_runs = n_runs_allegiance, 
+#                                                                                                        gamma_pt = gamma_pt_allegiance, 
+#                                                                                                        save_path=paths['allegiance'],
+#                                                                                                        ref_name='test_dfc', 
+#                                                                                                        n_jobs=PROCESSORS,
+#                                                                                                        )
 
 
 
 # %%
 
 # # Plot the contingency matrix
-# plt.figure(figsize=(10, 5))
-# plt.imshow(contingency_matrix, aspect='auto', interpolation='none', cmap='Greys')
-# plt.colorbar()
-# plt.title('Contingency matrix')
-# plt.xlabel('Time')
-# plt.ylabel('Regions')
-# plt.xticks(np.arange(len(anat_labels)), anat_labels, rotation=90)
-# # plt.yticks(np.arange(len(label_variables)), label_variables)
-# plt.tight_layout()
-# # if save_fig:
-# #     plt.savefig(paths['figures'] / 'contingency_matrix.png', dpi=300, bbox_inches='tight')
-# plt.show()
+plt.figure(figsize=(10, 5))
+plt.imshow(contingency_matrix, aspect='auto', interpolation='none', cmap='Greys')
+plt.colorbar()
+plt.title('Contingency matrix')
+plt.xlabel('Time')
+plt.ylabel('Regions')
+plt.xticks(np.arange(len(anat_labels)), anat_labels, rotation=90)
+# plt.yticks(np.arange(len(label_variables)), label_variables)
+plt.tight_layout()
+# if save_fig:
+#     plt.savefig(paths['figures'] / 'contingency_matrix.png', dpi=300, bbox_inches='tight')
+plt.show()
 
 # #%%
 # # Ines relevant sites
 # #RSP, ENT, HIP, thalamic nuclei, amygdala, and substantia nigra, reuniens, sensorimotor
+
+# %%
