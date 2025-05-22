@@ -200,34 +200,34 @@ dfc_stream = np.transpose(dfc_stream, (0, 3, 2, 1)) # (n_animals, n_windows, n_r
 #%%
 
 # %%
-dfc_communities = np.empty((n_animals, dfc_stream.shape[1], regions))
-sort_allegiance = np.empty((n_animals, dfc_stream.shape[1], regions))
-contingency_matrix = np.empty((n_animals, dfc_stream.shape[1], regions, regions))
+# dfc_communities = np.empty((n_animals, dfc_stream.shape[1], regions))
+# sort_allegiance = np.empty((n_animals, dfc_stream.shape[1], regions))
+# contingency_matrix = np.empty((n_animals, dfc_stream.shape[1], regions, regions))
 
-# Compute the allegiance communities for each time window
-for i in range(dfc_stream.shape[1]):
-    # Compute the allegiance communities for each time window
-    dfc_communities[0,i], sort_allegiance[0,i], contingency_matrix[0,i] = fun_allegiance_communities(dfc_stream[0,i], 
-                                                                                                       n_runs = n_runs_allegiance, 
-                                                                                                       gamma_pt = gamma_pt_allegiance, 
-                                                                                                       save_path=paths['allegiance'],
-                                                                                                       ref_name='test_dfc', 
-                                                                                                       n_jobs=PROCESSORS,
-                                                                                                       )
-# dfc_communities, sort_allegiance, contingency_matrix = fun_allegiance_communities(dfc_stream[0,0], 
+# # Compute the allegiance communities for each time window
+# for i in range(dfc_stream.shape[1]):
+#     # Compute the allegiance communities for each time window
+#     dfc_communities[0,i], sort_allegiance[0,i], contingency_matrix[0,i] = fun_allegiance_communities(dfc_stream[0,i], 
 #                                                                                                        n_runs = n_runs_allegiance, 
 #                                                                                                        gamma_pt = gamma_pt_allegiance, 
 #                                                                                                        save_path=paths['allegiance'],
 #                                                                                                        ref_name='test_dfc', 
 #                                                                                                        n_jobs=PROCESSORS,
 #                                                                                                        )
+# # dfc_communities, sort_allegiance, contingency_matrix = fun_allegiance_communities(dfc_stream[0,0], 
+# #                                                                                                        n_runs = n_runs_allegiance, 
+# #                                                                                                        gamma_pt = gamma_pt_allegiance, 
+# #                                                                                                        save_path=paths['allegiance'],
+# #                                                                                                        ref_name='test_dfc', 
+# #                                                                                                        n_jobs=PROCESSORS,
+# #                                                                                                        )
 
 
-#%%
-# Save the allegiance communities
-np.savez_compressed(paths['allegiance'] / f'allegiance_communities_lag={lag}_windowsize={window_size}_tau={tau}.npz', dfc_communities=dfc_communities, sort_allegiance=sort_allegiance, contingency_matrix=contingency_matrix)
-# Save the allegiance communities
-# np.savez_compressed(paths['allegiance'] / 'sort_allegiance.npz', sort_allegiance=sort_allegiance)
+# #%%
+# # Save the allegiance communities
+# np.savez_compressed(paths['allegiance'] / f'allegiance_communities_lag={lag}_windowsize={window_size}_tau={tau}.npz', dfc_communities=dfc_communities, sort_allegiance=sort_allegiance, contingency_matrix=contingency_matrix)
+# # Save the allegiance communities
+# # np.savez_compressed(paths['allegiance'] / 'sort_allegiance.npz', sort_allegiance=sort_allegiance)
 # np.savez_compressed(paths['allegiance'] / 'contingency_matrix.npz', contingency_matrix=contingency_matrix)
 
 # %%
