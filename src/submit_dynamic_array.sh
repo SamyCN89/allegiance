@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Activate conda in the SLURM job environment
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate funcog 
+
 read N_ANIMALS N_WINDOWS <<< $(python get_dfc_shape.py)
 TOTAL_JOBS=$((N_ANIMALS * N_WINDOWS))
 echo "Submitting $TOTAL_JOBS jobs..."
