@@ -36,18 +36,6 @@ done
 
 # Make the script executable
 # chmod +x launch_allegiance_jobs.sh
+
 # Run the script
 # ./launch_allegiance_jobs.sh
-# Check the logs
-# tail -f logs/allegiance_ws5.log
-# tail -f logs/allegiance_ws7.log
-# tail -f logs/allegiance_ws10.log
-# tail -f logs/allegiance_ws11.log
-# Check the status of the jobs
-# squeue -u $USER
-# Check the output files
-# ls -l logs/
-# Check the error files
-# ls -l logs/*.err
-# Check the output files
-# ls -l logs/*.out
