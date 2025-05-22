@@ -20,17 +20,7 @@ from pathlib import Path
 from shared_code.fun_loaddata import *
 from shared_code.fun_dfcspeed import *
 from shared_code.fun_metaconnectivity import *
-# from fun_loaddata import *
-# from fun_dfcspeed import *
 
-# from fun_metaconnectivity import (compute_metaconnectivity, 
-#                                   intramodule_indices_mask, 
-#                                   get_fc_mc_indices, 
-#                                   get_mc_region_identities, 
-#                                   fun_allegiance_communities,
-#                                   compute_trimers_identity,
-#                                     build_trimer_mask,
-#                                   )
 
 from shared_code.fun_utils import (set_figure_params, 
                        get_paths, 
@@ -78,7 +68,10 @@ regions = data_ts['regions']
 anat_labels = data_ts['anat_labels']
 
 
-#%%Metaconnectivity
+#%% dcf stream computation
+# =============================================================================
+# This code compute the dcf stream in parallel for each animal
+# =============================================================================
 from joblib import Parallel, delayed, parallel_backend
 def compute_dfc_stream(ts_data, window_size=7, lag=1, format_data='3D',save_path=None, n_jobs=-1):
     """
@@ -186,16 +179,39 @@ time_window_range = np.arange(time_window_min,
 
 #%%compute dfc stream
 # Compute the DFC stream
+# Define the wrapper function
+def compute_for_window_size(ws):
+    print(f"Starting DFC computation for window_size={ws}")
+    start = time.time()
+    dfc_stream = compute_dfc_stream(
+        ts,
+        window_size=ws,
+        lag=lag,
+        n_jobs=1,  # Important: Set to 1 to avoid nested parallelism
+        save_path=paths['mc'],
+    )
+    stop = time.time()
+    print(f"Finished window_size={ws} in {stop - start:.2f} sec")
+    return ws, dfc_stream
+
 start = time.time()
-dfc_stream = compute_dfc_stream(ts, 
-                              window_size=window_size, 
-                              lag=lag, 
-                              n_jobs =PROCESSORS,
-                              save_path = paths['mc'],
-                              )
+# Run parallel over window sizes
+results = Parallel(n_jobs=min(PROCESSORS, len(time_window_range)))(
+    delayed(compute_for_window_size)(ws) for ws in time_window_range
+)
+
+# dfc_stream = compute_dfc_stream(ts,
+#                               window_size=window_size,
+#                               lag=lag,
+#                               n_jobs=1,
+#                               save_path=paths['mc'],
+#                               )
+
+
+
 stop = time.time()
 print(f'DFC stream computation time {stop-start}')
-dfc_stream = np.transpose(dfc_stream, (0, 3, 2, 1)) # (n_animals, n_windows, n_regions, n_regions)
+# dfc_stream = np.transpose(dfc_stream, (0, 3, 2, 1)) # (n_animals, n_windows, n_regions, n_regions)
 
 #%%
 

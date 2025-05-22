@@ -29,6 +29,7 @@ if args.data_root:
     os.environ["PROJECT_DATA_ROOT"] = args.data_root
 
 processors = args.n_jobs
+
 window_size = args.window_size
 lag = args.lag
 timecourse_folder = args.timecourse_folder
@@ -85,7 +86,7 @@ def run_one_job(animal_idx, window_idx):
             n_jobs=1  # Only use 1 core per job to avoid CPU overload
         )
 
-        np.savez_compressed(    ,
+        np.savez_compressed(out_file,
                             dfc_communities=dfc_com,
                             sort_allegiance=sort_all,
                             contingency_matrix=cont_mat)

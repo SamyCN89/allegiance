@@ -18,10 +18,10 @@ sys.path.append('../../shared_code')
 
 # from sphinx import ret
 
-from fun_loaddata import *
-from fun_dfcspeed import *
+from shared_code.fun_loaddata import *
+from shared_code.fun_dfcspeed import *
 
-from fun_metaconnectivity import (compute_metaconnectivity, 
+from shared_code.fun_metaconnectivity import (compute_metaconnectivity, 
                                   intramodule_indices_mask, 
                                   get_fc_mc_indices, 
                                   get_mc_region_identities, 
@@ -30,7 +30,7 @@ from fun_metaconnectivity import (compute_metaconnectivity,
                                     build_trimer_mask,
                                   )
 
-from fun_utils import (set_figure_params, 
+from shared_code.fun_utils import (set_figure_params, 
                        get_paths, 
                        load_cognitive_data,
                        load_timeseries_data,
@@ -45,15 +45,20 @@ save_fig = set_figure_params(False)
 
 # =================== Paths and folders =======================================
 timeseries_folder = 'Timecourses_updated_03052024'
-external_disk = True
-if external_disk==True:
-    root = Path('/media/samy/Elements1/Proyectos/LauraHarsan/script_mc/')
-else:    
-    root = Path('/home/samy/Bureau/Proyect/LauraHarsan/Ines/')
+# Define the timeseries directory
+timeseries_folder = 'Timecourses_updated_03052024'
+# Will prioritize PROJECT_DATA_ROOT if set
+paths = get_paths(timecourse_folder=timeseries_folder)
 
-paths = get_paths(external_disk=True,
-                  external_path=root,
-                  timecourse_folder=timeseries_folder)
+# external_disk = True
+# if external_disk==True:
+#     root = Path('/media/samy/Elements1/Proyectos/LauraHarsan/script_mc/')
+# else:    
+#     root = Path('/home/samy/Bureau/Proyect/LauraHarsan/Ines/')
+
+# paths = get_paths(external_disk=True,
+#                   external_path=root,
+#                   timecourse_folder=timeseries_folder)
 
 # ========================== Load data =========================
 cog_data_filtered = load_cognitive_data(paths['sorted'] / 'cog_data_sorted_2m4m.csv')
@@ -244,14 +249,6 @@ for i in range(dfc_stream.shape[1]):
                                                                                                        ref_name='test_dfc', 
                                                                                                        n_jobs=PROCESSORS,
                                                                                                        )
-dfc_communities, sort_allegiance, contingency_matrix = fun_allegiance_communities(dfc_stream[0,0], 
-                                                                                                       n_runs = n_runs_allegiance, 
-                                                                                                       gamma_pt = gamma_pt_allegiance, 
-                                                                                                       save_path=paths['allegiance'],
-                                                                                                       ref_name='test_dfc', 
-                                                                                                       n_jobs=PROCESSORS,
-                                                                                                       )
-
 
 
 # %%

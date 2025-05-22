@@ -13,12 +13,11 @@ from matplotlib.collections import AsteriskPolygonCollection
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import sys
 
 from sympy import N
-sys.path.append('../../shared_code')
-from fun_utils import get_paths, set_figure_params
-from fun_dfcspeed import ts2fc
+
+from shared_code.fun_utils import get_paths, set_figure_params
+from shared_code.fun_dfcspeed import ts2fc
 
 # ========================== Figure parameters ================================
 # Set figure parameters globally
