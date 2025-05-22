@@ -8,19 +8,33 @@ import logging
 
 import argparse
 
-# --- Parse CLI arguments ---
+# ===================== CLI ARGUMENTS ==========================
 parser = argparse.ArgumentParser()
 parser.add_argument("--n_jobs", type=int, default=4,
                     help="Number of parallel jobs to run (default: 4)")
 parser.add_argument("--data_root", type=str, default=None,
                     help="Override PROJECT_DATA_ROOT (default: env variable)")
+parser.add_argument("--window_size", type=int, default=9, help="DFC window size (default: 9)")
+parser.add_argument("--lag", type=int, default=1, help="Lag between windows (default: 1)")
+parser.add_argument("--timecourse_folder", type=str, default="Timecourses_updated_03052024",
+                    help="Folder with timecourses (default: Timecourses_updated_03052024)")
+parser.add_argument("--n_runs", type=int, default=1000, help="Number of modularity runs (default: 1000)")
+parser.add_argument("--gamma", type=float, default=100, help="Gamma parameter for modularity (default: 100)")
 args = parser.parse_args()
-processors = args.n_jobs
-data_root = args.data_root
 
+
+# ===================== CONFIG ================================
 # Set PROJECT_DATA_ROOT from argument if given
 if args.data_root:
     os.environ["PROJECT_DATA_ROOT"] = args.data_root
+
+processors = args.n_jobs
+window_size = args.window_size
+lag = args.lag
+timecourse_folder = args.timecourse_folder
+n_runs = args.n_runs
+gamma = args.gamma
+
 
 # --- Setup logging ---
 log_file = Path("allegiance_errors.log")
@@ -71,7 +85,7 @@ def run_one_job(animal_idx, window_idx):
             n_jobs=1  # Only use 1 core per job to avoid CPU overload
         )
 
-        np.savez_compressed(out_file,
+        np.savez_compressed(    ,
                             dfc_communities=dfc_com,
                             sort_allegiance=sort_all,
                             contingency_matrix=cont_mat)
