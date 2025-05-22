@@ -6,15 +6,20 @@ Created on Wed Apr  2 02:59:41 2025
 @author: samy
 """
 #%%
-from pathlib import Path
-import re
 import time
-from matplotlib.collections import AsteriskPolygonCollection
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
+import brainconn as bct
 
-from sympy import N
+
+from scipy.stats import zscore, pearsonr
+#Compute k-means clustering on the z-scored time series
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
 
 from shared_code.fun_utils import get_paths, set_figure_params
 from shared_code.fun_dfcspeed import ts2fc
@@ -49,11 +54,11 @@ plt.title("Time Series")
 plt.xlabel("Time Points")
 plt.ylabel("Signal + Offset")
 plt.tight_layout()
-plt.show()
 plt.savefig(paths['figures'] / 'ts/ts_extract.png')
+plt.show()
 # %%
 
-from scipy.stats import zscore
+
 # Z-score ts_df by columns and maintain as ts_df
 
 #Concatenate all time series
@@ -81,24 +86,13 @@ plt.yticks(np.arange(len(anat_labels))*offset*10, anat_labels)
 plt.xlim(0, ts_zscore.shape[0])
 plt.xticks(np.arange(0, ts_zscore.shape[0], step=10000), rotation=45)
 plt.tight_layout()
-plt.show()
 plt.savefig(paths['figures'] / 'ts/ts_zscore_concatenated_all_animals.png')
+plt.show()
 
 # %%
 
-#Compute k-means clustering on the z-scored time series
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import silhouette_score
-from sklearn.pipeline import make_pipeline
-from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import FunctionTransformer
-from sklearn.pipeline import make_pipeline
 
 #%%
-import time 
 #Test for one animal
 
 # ================= Kmeans clustering ========================
@@ -145,7 +139,7 @@ plt.clim(-1.5,1.5)
 # Compute the functional connectivity (FC) for each cluster
 # Compute the Pearson correlation between the z-scored time series and the cluster centers
 
-from scipy.stats import pearsonr
+
 # FC_lambda (ts_zscore, kmeans_labels)
 
 ts_cluster = np.array([ts_zscore[kmeans_labels == k, :] for k in range(n_clusters)], object)
@@ -166,7 +160,10 @@ plt.figure(figsize=(12, 12))
 plt.title(f"Functional Connectivity Matrix for All Clusters (n_clusters={n_clusters})")  
 for i in range(n_clusters):
 
-    plt.subplot(int(n_clusters/2), int(np.ceil(n_clusters/2)), i+1)
+    n_rows = int(np.ceil(np.sqrt(n_clusters)))
+    n_cols = int(np.ceil(n_clusters / n_rows))
+    plt.subplot(n_rows, n_cols, i + 1)
+
     plt.imshow(fc_cluster[i], aspect='auto', cmap='RdBu_r', interpolation='none')
     plt.colorbar(label='Functional Connectivity Value')
     # plt.xticks(np.arange(len(anat_labels)), anat_labels, rotation=90)
@@ -184,7 +181,6 @@ plt.show()
 #%%
 # ================== Network analysis: Global and Local efficiency  =========================
 # Compute the global efficiency of the functional connectivity matrix
-import brainconn as bct
 
 global_efficiency = np.array([bct.distance.efficiency_wei(abs(fc_cluster[nn]), local=False) for nn in range(n_clusters)])
 local_efficiency = np.array([bct.distance.efficiency_wei(abs(fc_cluster[nn]), local=True) for nn in range(n_clusters)])
@@ -296,7 +292,6 @@ for animal in range(n_animals):
 
 
 #%%
-import pandas as pd
 
 # Flatten into rows: each row = (link, duration)
 link_ids = []
@@ -311,14 +306,60 @@ df_durations = pd.DataFrame({'link': link_ids, 'duration': durations})
 df_durations.groupby('link')['duration'].describe()
 
 
-import seaborn as sns
+
 plt.figure(figsize=(12, 5))
 sns.violinplot(data=df_durations, x='link', y='duration', cut=0)
 plt.xticks([], [])  # hide labels if too many links
 plt.title("Burst Duration Distributions per Link")
 plt.tight_layout()
 plt.show()
+#%%
 
+#New proposiiton
+
+
+def analyze_link_dynamics(kmeans_labels, fc_clusters, meta, save_fig, fig_path):
+    n_animals = meta['n_animals']
+    total_tp = meta['total_tp']
+    regions = meta['regions']
+
+    kmeans_labels_per_animal = np.array([
+        kmeans_labels[i * total_tp : (i + 1) * total_tp] for i in range(n_animals)
+    ])
+    fc_cluster_per_animal = np.array([
+        fc_clusters[kmeans_labels_per_animal[i]] for i in range(n_animals)
+    ])
+    region_triu_index = np.triu_indices(regions, k=1)
+    fc_cluster_per_animal = fc_cluster_per_animal[:,:,region_triu_index[0], region_triu_index[1]]
+
+    thr_ = 0.01
+    threshold_links = np.max(fc_cluster_per_animal, axis=1)*thr_
+    binary_fc_cluster = (fc_cluster_per_animal > threshold_links[:, None, :]).astype(int)
+
+    link_events = extract_link_activations(binary_fc_cluster)
+
+    durations_by_link = [[] for _ in range(binary_fc_cluster.shape[2])]
+    for animal in range(n_animals):
+        for link in range(len(link_events[animal])):
+            durations_by_link[link].extend([e['duration'] for e in link_events[animal][link]])
+
+    link_ids = []
+    durations = []
+    for link, dur_list in enumerate(durations_by_link):
+        link_ids.extend([link] * len(dur_list))
+        durations.extend(dur_list)
+
+    df_durations = pd.DataFrame({'link': link_ids, 'duration': durations})
+
+    plt.figure(figsize=(12, 5))
+    sns.violinplot(data=df_durations, x='link', y='duration', cut=0)
+    plt.xticks([], [])
+    plt.title("Burst Duration Distributions per Link")
+    plt.tight_layout()
+    save_figure(fig_path / 'link_burst_durations.png', save_fig)
+    plt.show()
+
+analyze_link_dynamics(kmeans_labels, fc_clusters, meta, save_fig, fig_path)
 
 # aux_plot = []
 
