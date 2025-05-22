@@ -21,7 +21,7 @@ window_idx = task_id % n_windows
 # Parameters
 n_runs = 1000
 gamma_pt = 100
-processors = 8
+processors = 35
 window_size = 9
 lag = 1
 

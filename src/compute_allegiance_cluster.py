@@ -165,7 +165,7 @@ def compute_dfc_stream(ts_data, window_size=7, lag=1, format_data='3D',save_path
 #%% Compute the DFC stream
 #Parameters speed
 
-PROCESSORS =90
+PROCESSORS =35
 
 lag=1
 tau=5
