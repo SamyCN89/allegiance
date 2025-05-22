@@ -3,7 +3,7 @@ from pathlib import Path
 from joblib import Parallel, delayed
 from shared_code.fun_utils import get_paths, load_timeseries_data
 from shared_code.fun_metaconnectivity import fun_allegiance_communities
-
+import os
 import logging
 
 import argparse
@@ -12,9 +12,15 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--n_jobs", type=int, default=4,
                     help="Number of parallel jobs to run (default: 4)")
+parser.add_argument("--data_root", type=str, default=None,
+                    help="Override PROJECT_DATA_ROOT (default: env variable)")
 args = parser.parse_args()
 processors = args.n_jobs
+data_root = args.data_root
 
+# Set PROJECT_DATA_ROOT from argument if given
+if args.data_root:
+    os.environ["PROJECT_DATA_ROOT"] = args.data_root
 
 # --- Setup logging ---
 log_file = Path("allegiance_errors.log")
