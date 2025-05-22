@@ -5,6 +5,11 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --time=01:00:00
 
+
+# Activate conda in the SLURM job environment
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate funcog 
+
 # Read values passed from the command line
 N_ANIMALS=$1
 N_WINDOWS=$2
