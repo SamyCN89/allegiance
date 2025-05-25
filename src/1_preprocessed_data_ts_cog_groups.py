@@ -23,7 +23,7 @@ import time
 # Intersect the 2 and 4 months to have data that have the two datapoints
 
 # =============================================================================
-TRANSIENT = 50 #TRansient to remove
+TRANSIENT = 50 #Transient to remove
 THRESHOLD = 0.2 #Threshold for phenotype classification
 
 #%% Define paths, folders and hash

@@ -1,9 +1,9 @@
-name: funcog
+name: funsy
 channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.11
+  - python
   - numpy
   - pandas
   - matplotlib
@@ -16,15 +16,17 @@ dependencies:
   - ipykernel
   - networkx
   - pytables
+  - openpyxl
   - pip
   - pip:
-      - git+https://github.com/SamyCN89/allegiance.git
-      - brainconn
+      # - git+https://github.com/SamyCN89/allegiance.git
+      - duecredit
+      - git+https://github.com/fiuneuro/brainconn.git
       - numba
       - tqdm
       - matplotlib
       - plotly
-      - ydata-profiling
+      # - ydata-profiling
       - wordcloud
       - missingno
 

@@ -3,7 +3,6 @@ from matplotlib import cm
 import numpy as np
 from pathlib import Path
 from shared_code.fun_utils import get_paths
-from torch import alpha_dropout
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from shared_code.fun_metaconnectivity import load_merged_allegiance
@@ -20,6 +19,7 @@ data_ts = np.load(paths['sorted'] / 'ts_and_meta_2m4m.npz', allow_pickle=True)
 ts = data_ts['ts']
 n_animals = len(ts)
 n_regions = ts[0].shape[1]
+anat_labels = data_ts['anat_labels']
 
 filename_dfc = f'window_size={window_size}_lag={lag}_animals={n_animals}_regions={n_regions}'
 dfc_data = np.load(paths['mc'] / f'dfc_{filename_dfc}.npz')
@@ -29,22 +29,27 @@ n_windows = np.transpose(dfc_data['dfc_stream'], (0, 3, 2, 1)).shape[1]
 
 #%%
 
-#Load the merged allegiance data
+# Load the merged allegiance data of all animals
 dfc_communities, sort_allegiances, contingency_matrices = load_merged_allegiance(paths, window_size=9, lag=1)
+dfc_communities_sorted = dfc_communities[:7, :, sort_allegiances[0, 0].astype(int)] # REaorder the labelling of the communities (deprecated soon)
 
 #%%
-dfc_communities_sorted = dfc_communities[0, :, sort_allegiances[0, 0].astype(int)]
+dfc_communities_sorted = dfc_communities_sorted[5].T
 # Plot the mean matrix
+#%%
 plt.figure(figsize=(10, 8))
 plt.subplot(1, 1, 1)
 plt.clf()
-plt.title("Allegiance Matrix - Animal 0, Window 0")
+plt.title("Community label - Animal 0, Window 0")
 # plt.imshow(cm_0_mean.T , aspect='auto', interpolation='none', cmap='Greys')
-plt.imshow(dfc_communities_sorted , aspect='auto', interpolation='none', cmap='Greys')
+# aux_argsort = np.argsort(dfc_communities_sorted)
+
+plt.imshow(dfc_communities_sorted, aspect='auto', interpolation='none', cmap='viridis')
 # plt.clim(0, 1)
 plt.colorbar()
-plt.xlabel("DFT Frequency")
-plt.ylabel("DFT Frequency")
+plt.yticks(np.arange(n_regions), labels=anat_labels[sort_allegiances[0, 0].astype(int)])
+plt.ylabel("Regions")
+plt.xlabel("Time Windows")
 plt.show()
 
 #%%%# Check the shape of the loaded data
@@ -136,7 +141,28 @@ for i in range(9):
     plt.xlabel("DFT Frequency")
     plt.ylabel("DFT Frequency")
 # %%
+def _build_agreement_matrix(communities):
+    """
+    Compute the agreement matrix for a list of community labels.
+    Parameters
+    ----------
+    communities : list of 1D arrays
+        List of community labels for each run. Each array should have the same length.
+    Returns
+    -------
+    agreement : 2D array
+        The agreement matrix, where entry (i, j) represents the number of communities
+        that nodes i and j belong to.
+    """
+    n_runs, n_nodes = communities.shape
+    agreement = np.zeros((n_nodes, n_nodes), dtype=np.uint16)
 
+    for Ci in communities:
+        # agreement += (Ci[:, None] == Ci[None, :])
+        agreement += (Ci[:, None] == Ci)
+
+    return agreement.astype(np.float32)
+#%%
 # Global Allegiance Matrix
 
 # Average modular structure over all windows and animals
@@ -145,7 +171,8 @@ allegiance_avg = allegiance_matrices.mean(axis=0)
 
 # "consensus" community structure over the whole period with Louvain method
 from shared_code.fun_metaconnectivity import contingency_matrix_fun
-allegancy_communities, argsort_allegancy_communities, allegancy_modularity_q, contingency_matrix =contingency_matrix_fun(1000, mc_data=allegiance_avg, gamma_range=10, gmin=0.1, gmax=1, cache_path=None, ref_name='', n_jobs=-1)
+# contingency_matrix, gamma_qmod_val, gamma_agreement_mat =contingency_matrix_fun(1000, mc_data=allegiance_avg, gamma_range=10, gmin=0.1, gmax=1, cache_path=None, ref_name='', n_jobs=-1)
+contingency_matrix, gamma_qmod_val, gamma_agreement_mat =contingency_matrix_fun(1000, mc_data=dfc_communities_sorted.T, gamma_range=10, gmin=0.5, gmax=1, cache_path=None, ref_name='', n_jobs=-1)
 #%%
 consensus_community =contingency_matrix
 
@@ -153,7 +180,6 @@ consensus_community =contingency_matrix
 plt.figure(figsize=(10, 8))
 plt.subplot(1, 1, 1)
 plt.clf()
-plt.title("Allegiance Matrix - Animal 0, Window 0")
 plt.imshow(consensus_community , aspect='auto', interpolation='none', cmap='Greys')
 plt.colorbar()
 plt.xlabel("DFT Frequency")
@@ -161,34 +187,37 @@ plt.ylabel("DFT Frequency")
 plt.show()
 # Plot the mean matrix
 # %%
-from sklearn.cluster import KMeans
 
-# Reshape to (n_windows, n_nodes*n_nodes)
-X = allegiance_matrices.reshape(allegiance_matrices.shape[0], -1)
+agreement = _build_agreement_matrix(dfc_communities_sorted.T)
 
-kmeans = KMeans(n_clusters=3, random_state=42)
-state_labels = kmeans.fit_predict(X)
-# %%
-from sklearn.metrics.pairwise import cosine_distances
-
-D = cosine_distances(X) 
 plt.figure(figsize=(10, 8))
 plt.subplot(1, 1, 1)
 plt.clf()
-plt.title("Allegiance Matrix - Animal 0, Window 0")
-plt.imshow(D , aspect='auto', interpolation='none', cmap='viridis')
-plt.colorbar()
-plt.xlabel("DFT Frequency")
-plt.ylabel("DFT Frequency")
-plt.show()
-# %%
-import matplotlib.pyplot as plt
+plt.imshow(agreement , aspect='auto', interpolation='none', cmap='viridis')
+#%%
 
-plt.plot(state_labels, marker='o')
-plt.xlabel("Time window")
-plt.ylabel("Modular state")
-plt.title("Modular state dynamics")
-plt.grid(True)
-plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # %%
