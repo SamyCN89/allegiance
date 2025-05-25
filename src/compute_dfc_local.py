@@ -92,11 +92,11 @@ def compute_for_window_size(ws):
     stop = time.time()
     print(f"Finished window_size={ws} in {stop - start:.2f} sec")
     return ws, dfc_stream
-
 #%%
 # #test compute_for_window_size
 #Uncomment to test the function for a specific window size
-dfc_stream = compute_for_window_size(9)
+ws,dfc_stream = compute_for_window_size(101)
+# ws2, dfc_stream2 = compute_for_window_size_new(101)
 
 #%%
 start = time.time()
