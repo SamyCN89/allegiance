@@ -8,7 +8,7 @@ Created on Mon Sep 23 13:26:30 2024
 
 #%%
 from calendar import c
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as pltcomputation
 import numpy as np
 import time
 from pathlib import Path
@@ -57,7 +57,7 @@ anat_labels = data_ts['anat_labels']
 #%% Compute the DFC stream
 #Parameters speed
 
-PROCESSORS =35
+PROCESSORS =-1
 
 lag=1
 tau=5
@@ -91,19 +91,59 @@ def compute_for_window_size(ws):
     )
     stop = time.time()
     print(f"Finished window_size={ws} in {stop - start:.2f} sec")
-    return ws, dfc_stream
+    # return ws, dfc_stream
 #%%
 # #test compute_for_window_size
 #Uncomment to test the function for a specific window size
-ws,dfc_stream = compute_for_window_size(101)
 # ws2, dfc_stream2 = compute_for_window_size_new(101)
 
 #%%
+# Run parallel dfc stream over window sizes 
 start = time.time()
-# Run parallel over window sizes
-results = Parallel(n_jobs=min(PROCESSORS, len(time_window_range)))(
+Parallel(n_jobs=min(PROCESSORS, len(time_window_range)))(
     delayed(compute_for_window_size)(ws) for ws in time_window_range
 )
 
 stop = time.time()
 print(f'DFC stream computation time {stop-start}')
+
+# %%
+# Check if the DFC stream files exist and their sizes
+def check_dfc_stream_files(paths, time_window_range, lag, n_animals, regions, size_threshold=1_000_000):
+    """
+    Check if DFC stream files exist for all specified window sizes.
+    """
+    missing_files = []
+    for ws in time_window_range:
+        # 1. Check the existence of the file for each window size
+        full_save_path = make_save_path(paths['mc'], "dfc", ws, lag, n_animals, regions)
+        if not full_save_path.exists():
+            missing_files.append(ws)
+        # 2. Check if the file is empty or corrupt (less than 1 MB)
+        else:
+            if full_save_path.stat().st_size < size_threshold:  # This will raise an error if the file is not valid
+                # Remove the file if it's empty or corrupt
+                print(f"File {full_save_path} exists but is empty or corrupt. Removing it.")
+                full_save_path.unlink(missing_ok=True)
+                missing_files.append(ws)
+    return missing_files
+
+#Check for missing DFC stream files and compute if necessary function
+def check_and_complete_dfc_stream(paths, time_window_range, lag, n_animals, regions):
+    """
+    Check for missing DFC stream files and compute them if necessary.
+    """
+    missing_files = check_dfc_stream_files(paths, time_window_range, lag, n_animals, regions)
+    if not missing_files:
+        print("All DFC stream files already exist.")
+    else:
+        print("Missing DFC stream files for window sizes:", missing_files)
+        Parallel(n_jobs=min(PROCESSORS, len(missing_files)))(
+            delayed(compute_for_window_size)(ws) for ws in missing_files
+        )
+    return missing_files
+# Run the check and complete function   
+missing_files = check_and_complete_dfc_stream(
+    paths, time_window_range, lag, n_animals, regions
+)
+# %%
