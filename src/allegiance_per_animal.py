@@ -2,9 +2,9 @@
 from matplotlib import cm
 import numpy as np
 from pathlib import Path
-from shared_code.fun_utils import get_paths
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+from shared_code.fun_utils import get_paths
 from shared_code.fun_metaconnectivity import load_merged_allegiance
 
 # Set consistent config to match previous run
