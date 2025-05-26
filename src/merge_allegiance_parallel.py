@@ -6,7 +6,7 @@ from pathlib import Path
 from shared_code.fun_utils import get_paths
 from shared_code.fun_metaconnectivity import load_merged_allegiance
 from tqdm import tqdm
-
+#%%
 def merge_allegiance(window_size=9, lag=1, timecourse_folder='Timecourses_updated_03052024'):
     # Get paths
     paths = get_paths(timecourse_folder=timecourse_folder)
