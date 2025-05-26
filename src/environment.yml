@@ -21,6 +21,7 @@ dependencies:
   - pip:
       # - git+https://github.com/SamyCN89/allegiance.git
       - duecredit
+      - python-dotenv
       - git+https://github.com/fiuneuro/brainconn.git
       - numba
       - tqdm
