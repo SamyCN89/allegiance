@@ -43,7 +43,7 @@ paths = get_paths(timecourse_folder=timeseries_folder)
 # ========================== Load data =========================
 cog_data_filtered = load_cognitive_data(paths['sorted'] / 'cog_data_sorted_2m4m.csv')
 data_ts = load_timeseries_data(paths['sorted'] / 'ts_and_meta_2m4m.npz')
-mask_groups, label_variables = load_grouping_data(paths['results'] / "grouping_data_oip.pkl")
+mask_groups, label_variables = load_grouping_data(paths['sorted'] / "grouping_data_oip.pkl")
 
 
 # ========================== Indices ==========================================
@@ -76,42 +76,91 @@ time_window_range = np.arange(time_window_min,
                               time_window_max+1,
                               time_window_step)
 
+
+#%%
 #%%compute dfc stream
 # Compute the DFC stream
 # Define the wrapper function
-def compute_for_window_size(ws):
-    print(f"Starting DFC computation for window_size={ws}")
-    start = time.time()
-    dfc_stream = compute_dfc_stream(
-        ts,
-        window_size=ws,
-        lag=lag,
-        n_jobs=1,  # Important: Set to 1 to avoid nested parallelism
-        save_path=paths['mc'],
-    )
-    stop = time.time()
-    print(f"Finished window_size={ws} in {stop - start:.2f} sec")
-    # return ws, dfc_stream
-#%%
-# #test compute_for_window_size
-#Uncomment to test the function for a specific window size
-# ws2, dfc_stream2 = compute_for_window_size_new(101)
+# def compute_for_window_size(ws):
+#     print(f"Starting DFC computation for window_size={ws}")
+#     start = time.time()
+#     dfc_stream = compute_dfc_stream(
+#         ts,
+#         window_size=ws,
+#         lag=lag,
+#         n_jobs=1,  # Important: Set to 1 to avoid nested parallelism
+#         save_path=paths[prefix],
+#     )
+#     stop = time.time()
+#     print(f"Finished window_size={ws} in {stop - start:.2f} sec")
+#     # return ws, dfc_stream
 
-#%%
-# Run parallel dfc stream over window sizes 
-start = time.time()
-Parallel(n_jobs=min(PROCESSORS, len(time_window_range)))(
-    delayed(compute_for_window_size)(ws) for ws in time_window_range
-)
+# #%%load_npz_cache
+# # #test compute_for_window_size
+# # from shared_code.fun_dfcspeed import *
+# #Uncomment to test the function for a specific window size
+# # ws, dfc_stream = compute_for_window_size_new(101)
+# # ws2, dfc_stream2 = compute_for_window_size(101)
 
-stop = time.time()
-print(f'DFC stream computation time {stop-start}')
+# #%%
+# # Run parallel dfc stream over window sizes 
+# start = time.time()
+# Parallel(n_jobs=min(PROCESSORS, len(time_window_range)))(
+#     delayed(compute_for_window_size)(ws) for ws in time_window_range
+# )
+
+# stop = time.time()
+# print(f'DFC stream computation time {stop-start}')
 
 # %%
 # Check for missing DFC stream files and compute if necessary function
 
-# Run the check and complete function   
-missing_files = check_and_rerun_missing_files(
-    paths['mc'], 'dfc', time_window_range, lag, n_animals, regions
-)
+    # return ws, dfc_stream
+
+prefix='dfc'
+
+def get_tnet_window_range(time_window_range, prefix='dfc'):
+    """
+    Get the range of window sizes for tnet files.
+    Args:
+        prefix (str): Prefix for the tnet files.
+    Returns:
+        list: List of window sizes.
+    """
+    def compute_for_window_size_new(ws,prefix='dfc'):
+        print(f"Starting DFC computation for window_size={ws}")
+        start = time.time()
+        dfc_stream = handler_tnet_analysis(
+            ts,
+            prefix=prefix,
+            window_size=ws,
+            lag=lag,
+            n_jobs=1,  # Important: Set to 1 to avoid nested parallelism
+            save_path=paths[prefix],
+        )
+        stop = time.time()
+        print(f"Finished window_size={ws} in {stop - start:.2f} sec")
+
+    # Run the check and complete function   
+    missing_files = check_and_rerun_missing_files(
+        paths[prefix], prefix, time_window_range, lag, n_animals, regions
+    )
+
+    if missing_files:
+        time_window_range = np.array(missing_files)
+
+    # Run parallel dfc stream over window sizes 
+    start = time.time()
+    Parallel(n_jobs=min(PROCESSORS, len(time_window_range)))(
+        delayed(compute_for_window_size_new)(ws, prefix) for ws in time_window_range
+    )
+
+    stop = time.time()
+    print(f'{prefix} stream computation time {stop-start}')
+
+    # Check for missing prefix files and compute if necessary function
+    missing_files = check_and_rerun_missing_files(
+        paths[prefix], prefix, time_window_range, lag, n_animals, regions
+    )
+get_tnet_window_range(time_window_range, prefix='dfc')
 # %%
