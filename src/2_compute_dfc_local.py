@@ -29,23 +29,17 @@ from shared_code.fun_utils import (set_figure_params,
 # This code compute 
 # Load the data
 # Intersect the 2 and 4 months to have data that have the two datapoints
-# ========================== Figure parameters ================================
-save_fig = set_figure_params(False)
 
 #%%
-
 # =================== Paths and folders =======================================
 # Will prioritize PROJECT_DATA_ROOT if set
 timeseries_folder = 'Timecourses_updated_03052024'
-paths = get_paths(timecourse_folder=timeseries_folder)
+paths = get_paths(dataset_name='ines_abdullah', 
+                  timecourse_folder=timeseries_folder)
 
 
 # ========================== Load data =========================
-cog_data_filtered = load_cognitive_data(paths['sorted'] / 'cog_data_sorted_2m4m.csv')
 data_ts = load_timeseries_data(paths['sorted'] / 'ts_and_meta_2m4m.npz')
-mask_groups, label_variables = load_grouping_data(paths['sorted'] / "grouping_data_oip.pkl")
-
-
 # ========================== Indices ==========================================
 ts=data_ts['ts']
 n_animals = data_ts['n_animals']
@@ -81,7 +75,7 @@ time_window_range = np.arange(time_window_min,
 #%%compute dfc stream
 # Compute the DFC stream
 # Define the wrapper function
-# def compute_for_window_size(ws):
+# def compute_for_1_window(ws):
 #     print(f"Starting DFC computation for window_size={ws}")
 #     start = time.time()
 #     dfc_stream = compute_dfc_stream(
@@ -95,18 +89,18 @@ time_window_range = np.arange(time_window_min,
 #     print(f"Finished window_size={ws} in {stop - start:.2f} sec")
 #     # return ws, dfc_stream
 
-# #%%load_npz_cache
-# # #test compute_for_window_size
+# #%%load_from_cache
+# # #test compute_for_1_window
 # # from shared_code.fun_dfcspeed import *
 # #Uncomment to test the function for a specific window size
-# # ws, dfc_stream = compute_for_window_size_new(101)
-# # ws2, dfc_stream2 = compute_for_window_size(101)
+# # ws, dfc_stream = compute_for_1_window_new(101)
+# # ws2, dfc_stream2 = compute_for_1_window(101)
 
 # #%%
 # # Run parallel dfc stream over window sizes 
 # start = time.time()
 # Parallel(n_jobs=min(PROCESSORS, len(time_window_range)))(
-#     delayed(compute_for_window_size)(ws) for ws in time_window_range
+#     delayed(compute_for_1_window)(ws) for ws in time_window_range
 # )
 
 # stop = time.time()
@@ -119,18 +113,18 @@ time_window_range = np.arange(time_window_min,
 
 prefix='dfc'
 
-def get_tnet_window_range(time_window_range, prefix='dfc'):
+def get_tenet4window_range(time_window_range, prefix='dfc'):
     """
-    Get the range of window sizes for tnet files.
+    Get the range of window sizes for tenet files.
     Args:
-        prefix (str): Prefix for the tnet files.
+        prefix (str): Prefix for the tenet files.
     Returns:
         list: List of window sizes.
     """
-    def compute_for_window_size_new(ws,prefix='dfc'):
+    def compute_for_1_window_new(ws,prefix='dfc'):
         print(f"Starting DFC computation for window_size={ws}")
         start = time.time()
-        dfc_stream = handler_tnet_analysis(
+        dfc_stream = handler_get_tenet(
             ts,
             prefix=prefix,
             window_size=ws,
@@ -152,7 +146,7 @@ def get_tnet_window_range(time_window_range, prefix='dfc'):
     # Run parallel dfc stream over window sizes 
     start = time.time()
     Parallel(n_jobs=min(PROCESSORS, len(time_window_range)))(
-        delayed(compute_for_window_size_new)(ws, prefix) for ws in time_window_range
+        delayed(compute_for_1_window_new)(ws, prefix) for ws in time_window_range
     )
 
     stop = time.time()
@@ -162,5 +156,5 @@ def get_tnet_window_range(time_window_range, prefix='dfc'):
     missing_files = check_and_rerun_missing_files(
         paths[prefix], prefix, time_window_range, lag, n_animals, regions
     )
-get_tnet_window_range(time_window_range, prefix='dfc')
+get_tenet4window_range(time_window_range, prefix='dfc')
 # %%

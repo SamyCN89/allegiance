@@ -154,19 +154,19 @@ def compute_dfc_stream(ts_data, window_size=7, lag=1, format_data='3D',save_path
 
     # File path setup
     save_path = Path(save_path) if save_path else None
-    full_save_path = (
+    file_path = (
         save_path / f"dfc_window_size={window_size}_lag={lag}_animals={n_animals}_regions={nodes}.npz"
         if save_path else None
     )
-    if full_save_path:
-        full_save_path.parent.mkdir(parents=True, exist_ok=True)
-        # full_save_path = os.path.join(save_path, f'mc_window_size={window_size}_lag={lag}_animals={n_animals}_regions={nodes}.npz')
-        # os.makedirs(os.path.dirname(full_save_path), exist_ok=True)
+    if file_path:
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        # file_path = os.path.join(save_path, f'mc_window_size={window_size}_lag={lag}_animals={n_animals}_regions={nodes}.npz')
+        # os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
     # Load from cache
-    if full_save_path and full_save_path.exists():
-        print(f"Loading dFC stream from: {full_save_path}")
-        data = np.load(full_save_path, allow_pickle=True)
+    if file_path and file_path.exists():
+        print(f"Loading dFC stream from: {file_path}")
+        data = np.load(file_path, allow_pickle=True)
         dfc_stream = data['dfc_stream'] 
     else:
         print(f"Computing dFC stream in parallel (window_size={window_size}, lag={lag})...")
@@ -181,9 +181,9 @@ def compute_dfc_stream(ts_data, window_size=7, lag=1, format_data='3D',save_path
         dfc_stream = np.stack(dfc_stream_list)
 
     # Save results if path is provided
-    if full_save_path:
-        print(f"Saving dFC stream to: {full_save_path}")
-        np.savez_compressed(full_save_path, dfc_stream=dfc_stream)
+    if file_path:
+        print(f"Saving dFC stream to: {file_path}")
+        np.savez_compressed(file_path, dfc_stream=dfc_stream)
     return dfc_stream
 
 #%% Compute the DFC stream
